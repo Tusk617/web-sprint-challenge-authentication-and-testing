@@ -28,7 +28,40 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  // implement login
+  const { username, password } = req.body;
+
+  if (req.body) {
+    Users.findBy({username: username})
+    .then(([user]) => {
+      if(user && bcrypt.compareSync(password, user.password)) {
+        const token = createToken(user)
+        res.status(200).json({token, user})
+      } else {
+        res.status(401).json("Invalid Credentials!");
+      }
+    })
+    .catch(err => {
+      res.status(500).json(err.message)
+    })
+  } else {
+    res.status(401).json("Please provide credentials to log-in!")
+  }
 });
+
+function createToken(user) {
+
+  const payload = {
+    subject: user.id,
+    username: user.username
+  };
+
+  const jwtSecret = process.env.JWT_SECRET || "is it secret, is it safe?";
+
+  const options = {
+    expiresIn: 60
+  }
+
+  return jwt.sign(payload, jwtSecret, options);
+}
 
 module.exports = router;
