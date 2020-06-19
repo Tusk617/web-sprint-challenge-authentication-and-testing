@@ -1,8 +1,11 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const jwtSecret = require("./constants.js");
 
 const router = require('express').Router();
-const Users = require("./auth-model.js")
+const Users = require("./auth-model.js");
+const constants = require("./constants.js");
+
 
 router.post('/register', (req, res) => {
   const credentials = req.body;
@@ -55,13 +58,13 @@ function createToken(user) {
     username: user.username
   };
 
-  const jwtSecret = process.env.JWT_SECRET || "is it secret, is it safe?";
+  const secret = constants.jwtSecret
 
   const options = {
     expiresIn: 60
   }
 
-  return jwt.sign(payload, jwtSecret, options);
+  return jwt.sign(payload, secret, options);
 }
 
 module.exports = router;
