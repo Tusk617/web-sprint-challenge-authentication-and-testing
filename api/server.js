@@ -81,4 +81,21 @@ server.post('/register', (req, res) => {
     return jwt.sign(payload, secret, options);
   }
 
+  const restricted = require("../auth/authenticate-middleware.js");
+
+  server.get('/', restricted, (req, res) => {
+    const requestOptions = {
+      headers: { accept: 'application/json' },
+    };
+  
+    axios
+      .get('https://icanhazdadjoke.com/search', requestOptions)
+      .then(response => {
+        res.status(200).json(response.data.results);
+      })
+      .catch(err => {
+        res.status(500).json({ message: 'Error Fetching Jokes', error: err });
+      });
+  });
+
 module.exports = server;
